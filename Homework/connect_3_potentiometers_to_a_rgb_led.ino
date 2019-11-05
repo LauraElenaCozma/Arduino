@@ -15,7 +15,7 @@ int ledValueGreen = 0;
 int ledValueBlue = 0;
 
 void setup() {
-  // put your setup code here, to run once:
+  
   pinMode(potPinRed , INPUT);
   pinMode(potPinGreen , INPUT);
   pinMode(potPinBlue , INPUT);
@@ -25,9 +25,9 @@ void setup() {
   pinMode(ledPinBlue , OUTPUT);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void setColor(){
 
+  //function that reads the value from each potentiometer, maps the values for analog output and set the color to the led through analogWrite
   potValueRed = analogRead(potPinRed);
   ledValueRed = map(potValueRed , 0 , 1023 , 0 , 255);
 
@@ -42,4 +42,8 @@ void loop() {
   ledValueBlue = map(potValueBlue , 0 , 1023 , 0 , 255);
 
   analogWrite(ledPinBlue , ledValueBlue);
+}
+
+void loop() {
+  setColor();
 }
