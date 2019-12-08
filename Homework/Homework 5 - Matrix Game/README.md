@@ -1,4 +1,0 @@
-RACING GAME
-
-Technical requirements:
-- 
