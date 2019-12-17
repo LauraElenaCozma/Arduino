@@ -1,14 +1,12 @@
 # RACING GAME
 
-## **Description**
+## **1. Description**
 
-Racing Game is a single player game. The player, represented on the matrix as a blinking point, must avoid the red lights on the matrix. The red lights will look like two walls, and the player must slip through them. When the player hits the wall, he loses a life, the game stops for a short period of time, the number of lives remaining will be displayed on the matrix, then the game will start. When the player loses all 3 lives, he will lose the game and a message will be displayed on the matrix.
+Racing Game is a single player game. The player, represented on the matrix as a blinking point, must avoid the red lights on the matrix. The red lights will look like two walls, and the player must slip through them. When the player hits the wall, he loses a life, the game stops for a short period of time, the number of lives remaining will be displayed on the matrix, then the game will start. When the player loses all 3 lives, he loses the game and a message will be displayed on the matrix.
 
-When the game starts, the player can choose the difficulty of the level: "Easy", "Normal" and "Hard". After choosing a level, the game starts and the LCD will show the current score and the number of lives. The player can also set an username and can see the highscore, which is saved using EEPROM.
+You can see a demo here: 
 
-During the game, the player will hear a song generated using the buzzer. At the end of the game a green Led will light if the player has exceeded the highscore, otherwise the red one. During the game, the song may stop for 5 seconds. If you press the joystick button in that interval, you get an extra life. The joystick will be used to move us through the menu, respectively its left-right moves for the game.
-
-## **1. Hardware**
+## **2. Hardware**
 - Arduino uno
 - 2 medium-sized breadboards
 - 1 small breadboard
@@ -26,13 +24,13 @@ During the game, the player will hear a song generated using the buzzer. At the 
 - 1 10K ohm resistor
 - wires
 
-## **2. Game specifications**
+## **3. Game specifications**
  - Welcome
  After you turn on the Arduino Uno board, a "Welcome!" message will be displayed on the matrix and "Racing Game, Have fun!" on the LCD for 10 seconds.
  - Start Game
-As long as the game has not started, the text "START GAME" will be written on the matrix.
+As long as the game has not started, the text "START GAME" will be written on the matrix. Both green and red led will be turned on (except when you finish the game).
 
- ****Main Menu ****
+ ***Main Menu ***
  
  The Main Menu contains the following options:
   1. Start
@@ -76,3 +74,27 @@ As long as the game has not started, the text "START GAME" will be written on th
   4. @UnibucRobotics (that helped me to create the game)
   5. exit
   You can scroll up and down using the OX axis. You can go back in the Main Menu only if the cursor ">" is set before "Exit" and you push the button.
+  
+  ## **4. How to play**
+  
+The player is represented by a blinking bullet, on both sides of it being walls. During the game the player must move using the left and right movements of the joystick, because the walls are canging constantly. When starting the game you have 3 lives and the score is 0. There are 3 speed thresholds and at certain time intervals it increases by 100 ms. 
+
+***Game difficulty***
+
+Easy: the initial speed is 600ms, the width of the path is 4 leds, at every step the score is increased by 1
+Medium: the initial speed is 400ms, the width of the path is 3 leds, at every step the score is increased by 2
+Hard: the initial speed is 300ms, the width of the path is 3 leds, at every step the score is increased by 3
+
+***Loosing a life***
+
+When the player loses a life, the game stops for 4 seconds and the player can choose his position (left - right movements).
+
+***Loosing the game**
+
+The player loses the game when there is no life left. If he has exceeded the highscore, "New highscore" will appear on the LCD, a smiley face on the matrix and the green led will turn on. Otherwise, "Game over! Score" will appear on the LCD, a sad face on the matrix and the red will turn on. You can quit by pressing the button. After that, the player will be asked if he wants to try again or to to exit (and go in the main menu). If he wants to try again, he should select again the difficulty level and the game restarts.
+
+***Getting an extra life***
+During the game, the player can hear a sound (only 3 seconds) up to 3 times. If he pressed the button in those 3 seconds, he gets an extra life.
+
+***Game implementation***
+The walls are generated randomly, we keep the position from where the road starts, and the random number tells us if the road continues to the left or to the right. The matrix will change every speedPlayer seconds, so the player will go down one row. 
