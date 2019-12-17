@@ -56,6 +56,7 @@ As long as the game has not started, the text "START GAME" will be written on th
   You can go back in the Main Menu only by pressing the button of the joystick
   
   ***Settings***
+  
   The Settings Menu contains:
   1. the name 
   2. exit
