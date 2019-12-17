@@ -30,7 +30,7 @@ You can see a demo here:
  - Start Game
 As long as the game has not started, the text "START GAME" will be written on the matrix. Both green and red led will be turned on (except when you finish the game).
 
- ***Main Menu ***
+ ***Main Menu***
  
  The Main Menu contains the following options:
   1. Start
@@ -89,12 +89,14 @@ Hard: the initial speed is 300ms, the width of the path is 3 leds, at every step
 
 When the player loses a life, the game stops for 4 seconds and the player can choose his position (left - right movements).
 
-***Loosing the game**
+***Loosing the game***
 
 The player loses the game when there is no life left. If he has exceeded the highscore, "New highscore" will appear on the LCD, a smiley face on the matrix and the green led will turn on. Otherwise, "Game over! Score" will appear on the LCD, a sad face on the matrix and the red will turn on. You can quit by pressing the button. After that, the player will be asked if he wants to try again or to to exit (and go in the main menu). If he wants to try again, he should select again the difficulty level and the game restarts.
 
 ***Getting an extra life***
+
 During the game, the player can hear a sound (only 3 seconds) up to 3 times. If he pressed the button in those 3 seconds, he gets an extra life.
 
 ***Game implementation***
+
 The walls are generated randomly, we keep the position from where the road starts, and the random number tells us if the road continues to the left or to the right. The matrix will change every speedPlayer seconds, so the player will go down one row. 
