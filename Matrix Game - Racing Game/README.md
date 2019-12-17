@@ -32,7 +32,7 @@ During the game, the player will hear a song generated using the buzzer. At the 
  - Start Game
 As long as the game has not started, the text "START GAME" will be written on the matrix.
 
- ***Main Menu ***
+ ****Main Menu ****
  
  The Main Menu contains the following options:
   1. Start
