@@ -75,7 +75,7 @@ int currentStringPos = 0;
 int startingLevelValue = 0;
 int noOfLives = 3;
 int score = 0;
-int maxScore = 0;
+int maxScore;
 String maxUsername = "";
 
 int buttonState = LOW;
@@ -223,6 +223,59 @@ const PROGMEM bool patternWallsHard[][8] = {
 
 int gameDifficulty = 0; //1 - easy. 2 medium. 3 hard
 int widthOfPath = 0; //3 for medium and hard. 4 for easy
+
+
+///variables used for the welcome message at the beginning of the game
+const PROGMEM bool welcomeMatrix[][45] = {
+  {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0} ,
+  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0} ,
+  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 1 , 1 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0},
+  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 1 , 1 , 1 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0},
+  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0},
+  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0},
+  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0},
+  {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0}
+ 
+};
+bool printedWelcome = 0;
+unsigned long long lastTimeWelcome = 0;
+int currentColWelcome = 0;
+
+//variables used for moving the player
+int yValuePlayer = 0;
+bool joyMovedYPlayer = false;
+
+///variables used to display start game
+const int noOfRowsIntroInGame = 8;
+const int noOfColumnsIntroInGame = 62;
+bool introInGameMatrix[noOfRowsIntroInGame][noOfColumnsIntroInGame] = {
+{0, 0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 , 0,   0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 ,   0,  0, 0, 0,  0 , 0,  0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0  , 0,   0, 0, 0, 0    , 0,   0, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   0, 1, 1, 1 ,   0,   1, 1, 1, 1 , 1,   0,   0, 1, 1, 0 ,   0,   1, 1, 1, 0 ,   0,  1, 1, 1,  1 , 1,  0, 0, 0, 0,   0, 1, 1, 0 ,   0,   0, 1, 1, 0  , 0,   1, 0, 0, 1    , 0,   1, 1, 1   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   1, 0, 0, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1  , 0,   1, 1, 1, 1    , 0,   1, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   0, 1, 0, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 1, 1, 0 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 0, 0 ,   0,   1, 0, 0, 1  , 0,   1, 1, 1, 1    , 0,   1, 1, 1   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   0, 0, 1, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 1, 1, 1 ,   0,   1, 0, 1, 0 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 1, 1 ,   0,   1, 1, 1, 1  , 0,   1, 0, 0, 1    , 0,   1, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   0, 0, 0, 1 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 0, 1, 0 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1  , 0,   1, 0, 0, 1    , 0,   1, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   1, 1, 1, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   0, 1, 1, 0 ,   0,   1, 0, 0, 1  , 0,   1, 0, 0, 1    , 0,   1, 1, 1   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 , 0,   0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 ,   0,  0, 0, 0,  0 , 0,  0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0  , 0,   0, 0, 0, 0    , 0,   0, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
+
+//variables used for the difficulty menu
+bool buttonPressedDifficulty = 0;
+Position difficultyPosition[] = {
+  {0 , 0} , {8 , 0} , {5 , 1}
+};
+int cursorDifficultyPosition = 0;
+int firstInDifficulty = 1; //variable used for the first time when we are in difficulty menu to print > before easy
+
+//variables for try again
+Position tryAgainPosition[] = {
+  {0 , 0} , {0 , 1}
+}; 
+//the first one for try again
+//the second one for exit
+int cursorTryAgainPosition = 0;
+bool firstInTryAgain = 1;
+bool buttonPressedTryAgain = 0;
 
 void displayMatrix(const PROGMEM bool m[][8])
 {
@@ -392,7 +445,7 @@ void finishedGameMenuNoHS()
 
 void finishedGameMenu()
 {
-  
+  //display the message "new highscore", "game over", smiley face or sad face
   if(score == maxScore)finishedGameMenuNewHS();
   else finishedGameMenuNoHS();
   buttonState = digitalRead(buttonPin);
@@ -415,7 +468,7 @@ void finishedGameMenu()
 
 void highScoreMenu()
 {
-  //function that controlls the selected option of high score menu
+  //display the highscore menu 
   lcd.setCursor(0 , 0);
   lcd.print("Highscore:");
   lcd.print(maxScore);
@@ -423,7 +476,7 @@ void highScoreMenu()
   lcd.print(maxUsername);
   lcd.setCursor(11 , 1);
   lcd.print(">Exit");
-
+ //exit when the button was pressed
   buttonState = digitalRead(buttonPin);
   if (buttonState !=  lastButtonState) {
   if (buttonState == LOW) {//button was pressed
@@ -472,6 +525,7 @@ void printSettingsMenu()
 }
 void printDifficulty()
 {
+  //prints the difficulty options before beginning the game
   lcd.setCursor(1 , 0);
   lcd.print("Easy");
   lcd.setCursor(9 , 0);
@@ -479,14 +533,10 @@ void printDifficulty()
   lcd.setCursor(6 , 1);
   lcd.print("Hard");
 }
-bool buttonPressedDifficulty = 0;
-Position difficultyPosition[] = {
-  {0 , 0} , {8 , 0} , {5 , 1}
-};
-int cursorDifficultyPosition = 0;
-int firstInDifficulty = 1; //variable used for the first time when we are in difficulty menu to print > before easy
+
 void chooseDifficultyScreen()
 {
+  //set the cursor before your option 
   printDifficulty();
   if(buttonPressedDifficulty == 0)
   {
@@ -512,7 +562,7 @@ void chooseDifficultyScreen()
       lcd.print(">");
     } 
    }
-
+   //check if the button was pressed(we have selected an option)
    buttonState = digitalRead(buttonPin);
     if (buttonState !=  lastButtonState) {
     if (buttonState == LOW) {//button was pressed
@@ -549,14 +599,7 @@ void chooseDifficultyScreen()
 }
 
 
-Position tryAgainPosition[] = {
-  {0 , 0} , {0 , 1}
-}; 
-//the first one for try again
-//the second one for exit
-int cursorTryAgainPosition = 0;
-bool firstInTryAgain = 1;
-bool buttonPressedTryAgain = 0;
+
 void printTryAgain()
 {
   lcd.setCursor(1 , 0);
@@ -869,8 +912,8 @@ void screenTransition()
             maxUsername = username;
             char buf[noOfUsernamePos + 1];
             maxUsername.toCharArray(buf , noOfUsernamePos + 1);
-            EEPROM.put(eeAdress , buf);
-            EEPROM.put(eeAdress + sizeof(int), maxUsername);
+            EEPROM.put(eeAdress , maxScore);
+            EEPROM.put(eeAdress + sizeof(int), buf);
           }
           else {
             digitalWrite(greenLedPin , LOW);
@@ -938,27 +981,6 @@ void screenTransition()
 }
 
 
-
-const int noOfRowsIntroInGame = 8;
-const int noOfColumnsIntroInGame = 62;
-bool introInGameMatrix[noOfRowsIntroInGame][noOfColumnsIntroInGame] = {
-{0, 0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 , 0,   0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 ,   0,  0, 0, 0,  0 , 0,  0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0  , 0,   0, 0, 0, 0    , 0,   0, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   0, 1, 1, 1 ,   0,   1, 1, 1, 1 , 1,   0,   0, 1, 1, 0 ,   0,   1, 1, 1, 0 ,   0,  1, 1, 1,  1 , 1,  0, 0, 0, 0,   0, 1, 1, 0 ,   0,   0, 1, 1, 0  , 0,   1, 0, 0, 1    , 0,   1, 1, 1   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   1, 0, 0, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1  , 0,   1, 1, 1, 1    , 0,   1, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   0, 1, 0, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 1, 1, 0 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 0, 0 ,   0,   1, 0, 0, 1  , 0,   1, 1, 1, 1    , 0,   1, 1, 1   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   0, 0, 1, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 1, 1, 1 ,   0,   1, 0, 1, 0 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 1, 1 ,   0,   1, 1, 1, 1  , 0,   1, 0, 0, 1    , 0,   1, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   0, 0, 0, 1 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 0, 1, 0 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1  , 0,   1, 0, 0, 1    , 0,   1, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   1, 1, 1, 0 ,   0,   0, 0, 1, 0 , 0,   0,   1, 0, 0, 1 ,   0,   1, 0, 0, 1 ,   0,  0, 0, 1,  0 , 0,  0, 0, 0, 0,   0, 1, 1, 0 ,   0,   1, 0, 0, 1  , 0,   1, 0, 0, 1    , 0,   1, 1, 1   , 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 , 0,   0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0 ,   0,  0, 0, 0,  0 , 0,  0, 0, 0, 0,   0, 0, 0, 0 ,   0,   0, 0, 0, 0  , 0,   0, 0, 0, 0    , 0,   0, 0, 0   , 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-};
-
-
-
-
-
-
-
-
 void displayIntroGame(){
   for(int row = 0 ; row < 8 ; row++)
     for(int col = 0 ; col < 8 ; col++)
@@ -1014,8 +1036,7 @@ void generateWalls(int width) //width of the path
   if(indexStartPath == randNumber)
      randNumber = random(0 , 8); //we don't know the direction so we generate another one
 }
-int yValuePlayer = 0;
-bool joyMovedYPlayer = false;
+
 void movePlayer()
 {
   yValuePlayer = analogRead(pinY);
@@ -1038,6 +1059,7 @@ void movePlayer()
 
 int validMove()
 {
+  //check if the move is valid 
   if(walls[rowPlayer][colPlayer] == 1)
     {
       return 0;
@@ -1072,7 +1094,7 @@ void blinkPlayer()
 
 void drawMap()
 {
-  
+  //draw the walls 
    for(int row = 0 ; row < 8 ; row++)
     for(int col = 0 ; col < 8 ; col++)
        lc.setLed(0 , row , col , walls[row][col]);
@@ -1129,12 +1151,128 @@ void drawMap()
 
 }
 
+
+
+ void generateLife()
+{
+  //start the buzzer for 3 seconds 
+  if(millis()- timeWhenGameStarted > 10000 && timeWhenGameStarted != 0) //15 seconds after the game started
+  {
+    int randomNum = random(0 , 1000);
+    if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && firstLifeGenerated == false)
+    {
+      tone(buzzPin , 30000);
+      lastTimeExtraLifeGenerated = millis();
+      firstLifeGenerated = true;
+    }
+  }
+
+  if(millis()- timeWhenGameStarted > 35000 && timeWhenGameStarted != 0) //after  seconds
+  {
+    int randomNum = random(0 , 1000);
+    if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && secondLifeGenerated == false)
+    {
+      tone(buzzPin , 35000);
+      lastTimeExtraLifeGenerated = millis();
+      secondLifeGenerated = true;
+    }
+  }
+  if(millis()- timeWhenGameStarted > 100000 && timeWhenGameStarted != 0) //after  seconds
+  {
+    int randomNum = random(0 , 1000);
+    
+    Serial.println(randomNum);
+    if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && thirdLifeGenerated == false)
+    {
+      tone(buzzPin , 40000);
+      lastTimeExtraLifeGenerated = millis();
+      thirdLifeGenerated = true;
+    }
+  }
+}
+
+
+void stopBuzzer()
+{
+  //stop the buzzer after 3 seconds or by pressing the button
+  if(firstLifeGenerated == true && secondLifeGenerated == false && millis() - lastTimeExtraLifeGenerated <=3000)
+  {
+    //first tone
+    buttonState = digitalRead(buttonPin);
+    if (buttonState == LOW && !increment1 && modifyStartScreen == 1) {//button was pressed
+      increment1 = true;
+      noOfLives ++;
+      noTone(buzzPin);
+    }
+   }
+
+  if(firstLifeGenerated == true && secondLifeGenerated == true && thirdLifeGenerated == false && millis() - lastTimeExtraLifeGenerated <=3000)
+  {
+    //second tone
+    buttonState = digitalRead(buttonPin);
+    if (buttonState == LOW && !increment2 && modifyStartScreen == 1) {//button was pressed
+      increment2 = true;
+      noOfLives ++;
+      noTone(buzzPin);
+    }
+  }
+
+  if(firstLifeGenerated == true && secondLifeGenerated == true && thirdLifeGenerated == true && millis() - lastTimeExtraLifeGenerated <=3000)
+  {
+    //third tone
+    buttonState = digitalRead(buttonPin);
+    if (buttonState == LOW && !increment3 && modifyStartScreen == 1) {//button was pressed
+      increment3 = true;
+      noOfLives ++;
+      noTone(buzzPin);
+    }
+  }
+
+  if(millis() - lastTimeExtraLifeGenerated > 3000)
+  { //haven't pressed the button, the tone must stop
+    noTone(buzzPin);
+    lastTimeExtraLifeGenerated = 0;
+  }
+}
+
+
+void welcomeMessageMatrix()
+{
+  //print the welcome message when the board is connected
+  for(int row = 0 ; row < 8 ; row++)
+    for(int col = 0 ; col < 8 ; col++)
+    {
+      bool value = pgm_read_byte_near(welcomeMatrix[row] +  ((col + currentColWelcome) % 43));
+      lc.setLed(0 , 7 - col , row , value);
+    }
+
+
+  if(millis() - lastTimeWelcome >= 230)
+  {
+    currentColWelcome++;
+    lastTimeWelcome = millis();
+  } 
+  if(millis() > 10000) { 
+    printedWelcome = 1; 
+    lcd.clear();
+    lcd.print(">");
+     mainMenu();}
+}
+
+void welcomeMessageLCD(){
+  lcd.setCursor(3 , 0);
+  lcd.print("Racing Game");
+  lcd.setCursor(4 , 1);
+  lcd.print("Have fun!");
+  
+}
+
 void setup() {
   pinMode(redLedPin , OUTPUT);
   pinMode(greenLedPin , OUTPUT);
-  int high = 0;
- // EEPROM.put(eeAdress , high);
- // EEPROM.put(eeAdress + sizeof(int) , "PLAYER ");
+  //int high = 0;
+  //EEPROM.put(eeAdress , high);
+  //EEPROM.put(eeAdress + sizeof(int) , "PLAYER ");
   // put your setup code here, to run once:
   lc.shutdown(0 , false);//we have one driver, the driver no. 0
   lc.setIntensity(0 , 2);//intensity between 0 and 15
@@ -1164,143 +1302,18 @@ void setup() {
   
 }
 
- void generateLife()
-{
-  Serial.println("LIFEEEEE");
-  
-  if(millis()- timeWhenGameStarted > 10000 && timeWhenGameStarted != 0) //15 seconds after the game started
-  {
-    int randomNum = random(0 , 1000);
-    if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && firstLifeGenerated == false)
-    {
-      tone(buzzPin , 3000);
-      lastTimeExtraLifeGenerated = millis();
-      firstLifeGenerated = true;
-    }
-  }
-
-  if(millis()- timeWhenGameStarted > 35000 && timeWhenGameStarted != 0) //after  seconds
-  {
-    int randomNum = random(0 , 1000);
-    if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && secondLifeGenerated == false)
-    {
-      tone(buzzPin , 3500);
-      lastTimeExtraLifeGenerated = millis();
-      secondLifeGenerated = true;
-    }
-  }
-  if(millis()- timeWhenGameStarted > 100000 && timeWhenGameStarted != 0) //after  seconds
-  {
-    int randomNum = random(0 , 1000);
-    
-    Serial.println(randomNum);
-    if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && thirdLifeGenerated == false)
-    {
-      tone(buzzPin , 4000);
-      lastTimeExtraLifeGenerated = millis();
-      thirdLifeGenerated = true;
-    }
-  }
-}
-
-
-void stopBuzzer()
-{
-
-    Serial.println("CLICKKKK");
-  if(firstLifeGenerated == true && secondLifeGenerated == false && millis() - lastTimeExtraLifeGenerated <=3000)
-  {
-    buttonState = digitalRead(buttonPin);
-    if (buttonState == LOW && !increment1 && modifyStartScreen == 1) {//button was pressed
-      increment1 = true;
-      noOfLives ++;
-      noTone(buzzPin);
-    }
-   }
-
-  if(firstLifeGenerated == true && secondLifeGenerated == true && thirdLifeGenerated == false && millis() - lastTimeExtraLifeGenerated <=3000)
-  {
-    buttonState = digitalRead(buttonPin);
-    if (buttonState == LOW && !increment2 && modifyStartScreen == 1) {//button was pressed
-      increment2 = true;
-      noOfLives ++;
-      noTone(buzzPin);
-    }
-  }
-
-  if(firstLifeGenerated == true && secondLifeGenerated == true && thirdLifeGenerated == true && millis() - lastTimeExtraLifeGenerated <=3000)
-  {
-    buttonState = digitalRead(buttonPin);
-    if (buttonState == LOW && !increment3 && modifyStartScreen == 1) {//button was pressed
-      increment3 = true;
-      noOfLives ++;
-      noTone(buzzPin);
-    }
-  }
-
-  if(millis() - lastTimeExtraLifeGenerated > 3000)
-  {  
-    noTone(buzzPin);
-    lastTimeExtraLifeGenerated = 0;
-  }
-}
-
-const PROGMEM bool welcomeMatrix[][45] = {
-  {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0} ,
-  {0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 1 , 0 ,  1 , 1 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0} ,
-  {0, 0, 0, 0, 0,   0, 1, 0, 1, 0,  1, 0, 0, 0    , 1, 0, 0, 0  ,  1, 0, 0, 0    , 1, 0, 0, 1  , 0,  1, 1, 1, 1  , 0,  1, 0, 0, 0,  0, 0, 1 , 0, 0, 0, 0},
-  {0, 0, 0, 0, 0,   0, 1, 0, 1, 0,  1, 1, 1, 0    , 1, 0, 0, 0  ,  1, 0, 0, 0    , 1, 0, 0, 1  , 0,  1, 1, 1, 1  , 0,  1, 1, 1, 0,  0, 0, 1 , 0, 0, 0, 0},
-  {0, 0, 0, 0, 0,   0, 1, 1, 1, 0,  1, 0, 0, 0    , 1, 0, 0, 0  ,  1, 0, 0, 0    , 1, 0, 0, 1  , 0,  1, 0, 0, 1  , 0,  1, 0, 0, 0,  0, 0, 1 , 0, 0, 0, 0},
-  {0, 0, 0, 0, 0,   0, 1, 1, 1, 0,  1, 0, 0, 0    , 1, 0, 0, 0  ,  1, 0, 0, 0    , 1, 0, 0, 1  , 0,  1, 0, 0, 1  , 0,  1, 0, 0, 0,  0, 0, 0 , 0, 0, 0, 0},
-  {0, 0, 0, 0, 0,   0, 1, 0, 1, 0,  1, 1, 1, 0    , 1, 1, 1, 0  ,  0, 1, 1, 0    , 0, 1, 1, 0  , 0,  1, 0, 0, 1  , 0,  1, 1, 1, 0,  0, 0, 1 , 0, 0, 0, 0},
-  {0, 0, 0, 0, 0,   0, 0, 0, 0, 0,  0, 0, 0, 0    , 0, 0, 0, 0  ,  0, 0, 0, 0    , 0, 0, 0, 0  , 0,  0, 0, 0, 0  , 0,  0, 0, 0, 0,  0, 0, 0 , 0, 0, 0, 0}
- 
-};
-bool printedWelcome = 0;
-unsigned long long lastTimeWelcome = 0;
-int currentColWelcome = 0;
-void welcomeMessageMatrix()
-{
-  for(int row = 0 ; row < 8 ; row++)
-    for(int col = 0 ; col < 8 ; col++)
-    {
-      bool value = pgm_read_byte_near(welcomeMatrix[row] +  ((col + currentColWelcome) % 43));
-      lc.setLed(0 , 7 - col , row , value);
-    }
-
-
-  if(millis() - lastTimeWelcome >= 230)
-  {
-    currentColWelcome++;
-    lastTimeWelcome = millis();
-  } 
-  if(millis() > 10000) { 
-    printedWelcome = 1; 
-    lcd.clear();
-    lcd.print(">");
-     mainMenu();}
-}
-
-void welcomeMessageLCD(){
-  lcd.setCursor(3 , 0);
-  lcd.print("Racing Game");
-  lcd.setCursor(4 , 1);
-  lcd.print("Have fun!");
-  
-}
-
-
 void loop() { 
  
 if(modifyStartScreen != 2)
 {
+  //the leds are turned on during the entire game, except the moment when the game is finished 
   digitalWrite(redLedPin , HIGH);
   digitalWrite(greenLedPin , HIGH);
 }
-Serial.println(speedPlayer);
+
 if(millis() - lastTimeExtraLifeGenerated > 3000 || gameOver)
   {  
-    //we died while the buzzer was singing
+    //we died while the buzzer was singing, the tone stops
     noTone(buzzPin);
     lastTimeExtraLifeGenerated = 0;
   }
