@@ -1133,8 +1133,8 @@ void setup() {
   pinMode(redLedPin , OUTPUT);
   pinMode(greenLedPin , OUTPUT);
   int high = 0;
-  EEPROM.put(eeAdress , high);
-  EEPROM.put(eeAdress + sizeof(int) , "PLAYER ");
+ // EEPROM.put(eeAdress , high);
+ // EEPROM.put(eeAdress + sizeof(int) , "PLAYER ");
   // put your setup code here, to run once:
   lc.shutdown(0 , false);//we have one driver, the driver no. 0
   lc.setIntensity(0 , 2);//intensity between 0 and 15
