@@ -10,26 +10,15 @@ const int D5Pin = 4;
 const int D6Pin = 3;
 const int D7Pin = 2;
 const int buzzPin = A3;
-const int rowComp[] = {6 , 11 , A5 , 9 , 5 , A4 , 4 , A2};  //C1 C2 C3 C4  C5 C6  C7  C8 - anodes
-const int colComp[] = {10 , 3 , 2 , 7 , A3 , 8 , 12 , 13};
+
 const int redLedPin = 6;
 const int greenLedPin = 7;
-int swState = LOW;
-int lastSwState = LOW;
-int switchValue;
 
-int xValue = 0;
-
-bool joyMovedX = false;
-
+//the position of the player in the matrix. it will always be the column number 1
 int colPlayer = 1;
 int rowPlayer = 5;
 
 bool gameOver = 0;
-
-const int pinX = A0; // A0 - analog pin connected to X output
-const int pinY = A1; // A1 - analog pin connected to Y output
-const int pinSW = A2;
 
 //variables used for eeprom
 int eeAdress = 0;
@@ -55,33 +44,35 @@ int mainMenuScreen = 1; //=0 if we aren't in the main menu; =1 if we are
 //initialize the joystick
 const int buttonPin= A2; // digital pin connected to switch output
 const int xPin = A0; // A0 - analog pin connected to X output
-const int yPin = A1; // A1 - analog pin connected to Y outputconst int pinSW = 10; // digital pin connected to switch output
+const int yPin = A1; // A1 - analog pin connected to Y output
 
 int xValueMenu = 0;
 int yValue = 0;
+int xValue = 0;
+bool joyMovedX = false;
 bool joyMovedXMenu = false;
 bool joyMovedY = false;
 int minThreshold= 100;
 int maxThreshold= 900;
-
-
-unsigned long long currentTime = 0;
-unsigned long long lastFinishedTime = 0;
-
-String username = "PLAYER ";
-const unsigned int noOfUsernamePos = 7;
-int currentStringPos = 0;
-
-int startingLevelValue = 0;
-int noOfLives = 3;
-int score = 0;
-int maxScore;
-String maxUsername = "";
+//used when we press the button
+int swState = LOW;
+int lastSwState = LOW;
+int switchValue;
 
 int buttonState = LOW;
 int lastButtonState = LOW;
 bool pressedButton = false;//default is not pressed
 
+//used to set the username in settings
+String username = "PLAYER ";
+const unsigned int noOfUsernamePos = 7;
+int currentStringPos = 0;
+
+//value of number of lives, score
+int noOfLives = 3;
+int score = 0;
+int maxScore;
+String maxUsername = "";
 
 
 
@@ -188,6 +179,7 @@ bool walls[][8] = {
   {1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 } 
 };
 
+//model of the matrix displayed on the beginning of the game for easy
 const PROGMEM bool patternWallsEasy[][8] = {
   {1 , 1 , 1 , 1 , 1 , 1 , 0 , 1 } ,
   {1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 } , 
@@ -198,7 +190,7 @@ const PROGMEM bool patternWallsEasy[][8] = {
   {1 , 0 , 1 , 0 , 1 , 1 , 1 , 1 } , 
   {1 , 1 , 1 , 0 , 1 , 1 , 1 , 1 } 
 };
-
+//model of the matrix displayed on the beginning of the game for medium
 const PROGMEM bool patternWallsMedium[][8] = {
   {1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 } ,
   {1 , 1 , 1 , 1 , 1 , 0 , 1 , 1 } , 
@@ -209,7 +201,7 @@ const PROGMEM bool patternWallsMedium[][8] = {
   {1 , 1 , 0 , 1 , 1 , 1 , 1 , 1 } , 
   {1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 } 
 };
-
+//model of the matrix displayed on the beginning of the game for hard
 const PROGMEM bool patternWallsHard[][8] = {
   {1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 } ,
   {1 , 1 , 1 , 1 , 1 , 0 , 1 , 1 } , 
@@ -268,14 +260,16 @@ int cursorDifficultyPosition = 0;
 int firstInDifficulty = 1; //variable used for the first time when we are in difficulty menu to print > before easy
 
 //variables for try again
+//where we want to display >
 Position tryAgainPosition[] = {
   {0 , 0} , {0 , 1}
 }; 
 //the first one for try again
 //the second one for exit
 int cursorTryAgainPosition = 0;
-bool firstInTryAgain = 1;
+bool firstInTryAgain = 1;   //if it is the first time when we enter in try again, we display > before try again(no option selected yet)
 bool buttonPressedTryAgain = 0;
+
 
 void displayMatrix(const PROGMEM bool m[][8])
 {
@@ -284,21 +278,20 @@ void displayMatrix(const PROGMEM bool m[][8])
     {for(int col = 0 ; col < 8 ; col++)
     {
       bool val = pgm_read_byte_near(m[row] + col);
-      Serial.print(val);
-      Serial.print(" ");
       lc.setLed(0 , 7 - col , row , val);
-    }Serial.println(" ");}
-     Serial.println(" ");   
+    }
+    } 
 }
 
 void display321BeforeStart()
 {
+  //display 3 2 1 message on matrix before the game starts
   displayMatrix(threeMatrix);
   delay(1000); //it is used to display the numbers before starting the game. does not affect the game
   displayMatrix(twoMatrix);
-  delay(1000);
+  delay(1000); //used to display the numbers before starting the game. does not affect the game
   displayMatrix(oneMatrix);
-  delay(1000);
+  delay(1000); //used to display the numbers before starting the game. does not affect the game
   display321 = 1;
 }
 
@@ -306,7 +299,7 @@ void setupName()
 {
       //function that sets the username in settings menu
       xValueMenu = analogRead(xPin);
-      
+      //modify the letter
       if (modifySettingsScreen == 1 && xValueMenu >= minThreshold && xValueMenu <= maxThreshold) {
           joyMovedXMenu = false;
       }
@@ -327,9 +320,7 @@ void setupName()
         joyMovedXMenu = true;
       }
        
-      
-
-      
+      //select the letter using the oy axis
       yValue = analogRead(yPin);
       if (modifySettingsScreen == 1 && yValue >= minThreshold && yValue <= maxThreshold) {
           joyMovedY = false;
@@ -360,7 +351,7 @@ void selectOptionMainMenu()
 
   // On Ox axis, if the value is bigger than a chosen max threshold, then
   // move the cursor
-  if (mainMenuScreen == 1 && yValue < minThreshold && joyMovedY == false) {
+  if (mainMenuScreen == 1 && yValue < minThreshold && joyMovedY == false) { //we are in the main menu and we moved the joystick
     if (currentCursorPosition < noOfOptions - 1) {
         currentCursorPosition ++;
     } 
@@ -571,7 +562,7 @@ void chooseDifficultyScreen()
          buttonPressedDifficulty = 1;
          timeWhenGameStarted = millis();
         switch(cursorDifficultyPosition)
-        {
+        { //the options are updated because the difficulty is selected
           case 0:speedPlayer = speedEasy;
                  valueMultiplyScore = valueMultiplyScoreEasy;
                  widthOfPath = 4;
@@ -602,6 +593,7 @@ void chooseDifficultyScreen()
 
 void printTryAgain()
 {
+  //function that prints try again
   lcd.setCursor(1 , 0);
   lcd.print("Try again?  (:");
   lcd.setCursor(1 , 1);
@@ -611,6 +603,7 @@ void printTryAgain()
 
 void tryAgainMenu()
 {
+  //modify the screen when we move the cursor with the joystick
   printTryAgain();
   if(buttonPressedTryAgain == 0)
   {
@@ -681,7 +674,6 @@ void settingsMenu()
       
       currentSetPos = !currentSetPos;
       joyMovedXMenu = true;
-      Serial.println(currentSetPos);
       lcd.clear();
       printSettingsMenu();
       lcd.setCursor(setPos[currentSetPos].col , setPos[currentSetPos].row);
@@ -692,7 +684,6 @@ void settingsMenu()
        
       currentSetPos = !currentSetPos;
       joyMovedXMenu = true;
-      Serial.println(currentSetPos);
       lcd.clear();
       printSettingsMenu();
       lcd.setCursor(setPos[currentSetPos].col , setPos[currentSetPos].row);
@@ -724,6 +715,7 @@ void settingsMenu()
   
   if(buttonPressedSettings == 2)
   {
+       //we have selected to go back in the main menu 
        modifySettingsScreen = 0;
        lcd.clear();
        lcd.print(">");
@@ -750,6 +742,7 @@ bool buttonPressedInfo = 0; //is pressed is we want to go back
 
 void infoMenu()
 {
+  //prints info menu and controlls the cursor
   //check if the button was pressed and we are on exit
   buttonState = digitalRead(buttonPin);
   if (buttonState !=  lastButtonState) {
@@ -857,7 +850,7 @@ void screenTransition()
 {
   //function that calls the functions of the current type of menu
   if(modifyStartScreen == 1){
-        if(pressedStart && !gameOver){
+        if(pressedStart && !gameOver){ //we have just started the game
             levelMenu();
             if(!display321)
             {
@@ -865,8 +858,9 @@ void screenTransition()
             }
             
         }
-        if(pressedStart && gameOver)
+        if(pressedStart && gameOver)  //we have finished the game
         {
+          //update
           switch(cursorDifficultyPosition)
           {
             case 0:speedPlayer = speedEasy;
@@ -904,8 +898,7 @@ void screenTransition()
           pressedStart = 0;
           currentColIntroInGame = 0;
           modifyStartScreen = 2;
-          startingLevelValue = 0;
-          if(score > maxScore) {
+          if(score > maxScore) { //game finished, update the highscore
             displayMatrix(happyFace);
             digitalWrite(redLedPin , LOW);
             maxScore = score;
@@ -947,9 +940,7 @@ void screenTransition()
         }
   }
   if(modifyStartScreen == 4){
-    Serial.println(buttonPressedTryAgain);
-
-    if(!buttonPressedTryAgain)tryAgainMenu();
+    if(!buttonPressedTryAgain)tryAgainMenu();  //we haven's selected an option yet
     else
     {
         buttonPressedTryAgain = 0;
@@ -958,11 +949,13 @@ void screenTransition()
     
   }
   if(modifyHighScoreScreen == 1){
+    //we are in highscore menu
         highScoreMenu();
   }
 
   if(modifySettingsScreen == 1)
   {
+    //we are in settings
       if(firstInSettings == 1) //to print only the first time the > in front of lev
       {
         lcd.setCursor(0 , 0);
@@ -974,7 +967,7 @@ void screenTransition()
       
   }
   if(modifyInfoScreen == 1)
-  {
+  {//we are in info
     infoMenu();
   }
   
@@ -982,6 +975,7 @@ void screenTransition()
 
 
 void displayIntroGame(){
+  //display message of the intro (scrolling)
   for(int row = 0 ; row < 8 ; row++)
     for(int col = 0 ; col < 8 ; col++)
         lc.setLed(0 , 7 - col , row , introInGameMatrix[row][(col + currentColIntroInGame) % noOfColumnsIntroInGame]);
@@ -998,6 +992,7 @@ void displayIntroGame(){
 
 void restaurateWalls(bool w[][8])
 {
+  //reinitializes the matrix of the walls
   for(int row = 0 ; row < 8 ; row ++) 
     for(int col = 0 ; col < 8 ; col++)
     {
@@ -1009,10 +1004,12 @@ void restaurateWalls(bool w[][8])
 
 void generateWalls(int width) //width of the path
 {
+  //generate walls randomly
   for(int row = 0 ; row < 8 ; row++)
     for(int col = 0 ; col < 7 ; col++)
       walls[row][col] = walls[row][col + 1];
 
+  //index start path is the line where the path starts
   if(indexStartPath > randNumber) //move to the left
     {
         if(indexStartPath != 0) { //we can go to the left 
@@ -1039,7 +1036,8 @@ void generateWalls(int width) //width of the path
 
 void movePlayer()
 {
-  yValuePlayer = analogRead(pinY);
+  //if we move the joystick to the right(left), the player will move one position to the right(left)
+  yValuePlayer = analogRead(yPin);
 
   if (yValuePlayer >= minThreshold && yValuePlayer <= maxThreshold) {
     joyMovedYPlayer = false;
@@ -1049,7 +1047,6 @@ void movePlayer()
      if(rowPlayer < 7)rowPlayer ++;
      joyMovedYPlayer = true;
   }
-// Serial.println(rowPlayer);
   if (yValuePlayer < minThreshold && joyMovedYPlayer == false) {
        if(rowPlayer > 0)rowPlayer --;
       joyMovedYPlayer = true;
@@ -1061,15 +1058,13 @@ int validMove()
 {
   //check if the move is valid 
   if(walls[rowPlayer][colPlayer] == 1)
-    {
       return 0;
-    }
   else return 1;
 }
 
 void buttonPressed()
 {
-  swState = digitalRead(pinSW);
+  swState = digitalRead(buttonPin);
 
   if (swState !=  lastSwState) {
   if (swState == LOW) {
@@ -1085,6 +1080,7 @@ void buttonPressed()
 
 void blinkPlayer()
 {
+  //make the player blink
   if(millis() - lastTimeBlinkPlayer >= (speedPlayer  / 4))
   {
     lastTimeBlinkPlayer = millis();
@@ -1099,6 +1095,7 @@ void drawMap()
     for(int col = 0 ; col < 8 ; col++)
        lc.setLed(0 , row , col , walls[row][col]);
 
+  //after a period of time, the player goes faster
   if(!secondLevel && millis()- timeWhenGameStarted >= 10000)
      { speedPlayer -= 100;
        secondLevel = true;
@@ -1119,8 +1116,9 @@ void drawMap()
       else{
       unsigned long long timeFreeze = millis();
       lcd.clear();
-      levelMenu(); //we have lost a life and we want to be edesplayed on the screen
+      levelMenu(); //we have lost a life and we want to be desplayed on the screen
       noTone(buzzPin);
+      //the screen freezes for 4 seconds when we loose a life
       while(millis() - timeFreeze <= 4000)
       {
          for(int row = 0 ; row < 8 ; row++)
@@ -1158,6 +1156,7 @@ void drawMap()
   //start the buzzer for 3 seconds 
   if(millis()- timeWhenGameStarted > 10000 && timeWhenGameStarted != 0) //15 seconds after the game started
   {
+    //the random number tells if the buzzer will turn on or not
     int randomNum = random(0 , 1000);
     if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && firstLifeGenerated == false)
     {
@@ -1167,6 +1166,7 @@ void drawMap()
     }
   }
 
+  //second extra life
   if(millis()- timeWhenGameStarted > 35000 && timeWhenGameStarted != 0) //after  seconds
   {
     int randomNum = random(0 , 1000);
@@ -1177,11 +1177,11 @@ void drawMap()
       secondLifeGenerated = true;
     }
   }
+  //third extra life
   if(millis()- timeWhenGameStarted > 100000 && timeWhenGameStarted != 0) //after  seconds
   {
     int randomNum = random(0 , 1000);
     
-    Serial.println(randomNum);
     if(freezeNoTone == false && randomNum >= 0 && randomNum <=50 && (millis() - lastTimeExtraLifeGenerated) > 5000 && thirdLifeGenerated == false)
     {
       tone(buzzPin , 40000);
@@ -1276,16 +1276,7 @@ void setup() {
   // put your setup code here, to run once:
   lc.shutdown(0 , false);//we have one driver, the driver no. 0
   lc.setIntensity(0 , 2);//intensity between 0 and 15
-  lc.clearDisplay(0);
-  pinMode(pinSW , INPUT_PULLUP);
-  for (int i = 0; i < 8; i++)
-  {
-    pinMode(rowComp[i], OUTPUT);
-    pinMode(colComp[i], OUTPUT);
-  } 
-  
-  Serial.begin(9600);
-
+  lc.clearDisplay(0);  
   pinMode(buttonPin , INPUT_PULLUP);
   lcd.begin(16 , 2); //number of columns and 2 rows
   EEPROM.get(eeAdress , maxScore);
@@ -1297,8 +1288,6 @@ void setup() {
     maxUsername += buf[cpos];
     cpos ++;
   }
-  Serial.println(buf);
-  
   
 }
 
@@ -1319,6 +1308,7 @@ if(millis() - lastTimeExtraLifeGenerated > 3000 || gameOver)
   }
   
   if(!printedWelcome){
+  //print only one time the welcome message
   welcomeMessageLCD();
   welcomeMessageMatrix();
   }
@@ -1330,6 +1320,7 @@ if(millis() - lastTimeExtraLifeGenerated > 3000 || gameOver)
   }
   if(printedWelcome && pressedStart && !gameOver && display321)
   {
+    //generate a life only when the game started
     generateLife();
     stopBuzzer();
     drawMap(); 
